@@ -1,0 +1,136 @@
+#include <Servo.h>
+
+byte motor1A = 2;
+byte motor1B = 3;  // Group 1 motors
+
+byte motor2A = 4;
+byte motor2B = 5;  // Group 2 motors
+
+int servosignal = 6;
+Servo myservo;
+
+int speed = 70;
+char command; // Variable to store incoming command
+
+void setup() {
+  // Set motor pins as outputs
+  pinMode(motor1A, OUTPUT);
+  pinMode(motor1B, OUTPUT);
+  pinMode(motor2A, OUTPUT);
+  pinMode(motor2B, OUTPUT);
+
+  myservo.attach(servosignal);
+
+// Initialize serial communication
+  Serial.begin(115200); 
+}
+//Moving the motors forward 
+void moveForward() {
+  Serial.println("moveForward");
+  // Combine control for Group 1 motors
+  digitalWrite(motor1A, HIGH);
+  digitalWrite(motor1B, LOW);
+
+
+
+  // Combine control for Group 2 motors
+  digitalWrite(motor2A, HIGH);
+  digitalWrite(motor2B, LOW);
+}
+
+// Moving the motors Backward
+void moveBackward() {
+  Serial.println("moveBackward");
+  // Combine control for Group 1 motors (reversed)
+  digitalWrite(motor1A, LOW);
+  digitalWrite(motor1B, HIGH);
+
+  // Combine control for Group 2 motors (reversed)
+  digitalWrite(motor2A, LOW);
+  digitalWrite(motor2B, HIGH);
+}
+
+// moving the motors right
+void moveRight() {
+  Serial.println("moveRight");
+  // Set Group 1 motors to turn right
+  digitalWrite(motor1A, HIGH);
+  digitalWrite(motor1B, LOW);
+
+  // Set Group 2 motors to move forward
+  digitalWrite(motor2A, HIGH);
+  digitalWrite(motor2B, LOW);
+}
+
+// moving the motors left
+void moveLeft() {
+  Serial.println("moveLeft");
+  // Set Group 1 motors to move forward
+  digitalWrite(motor1A, HIGH);
+  digitalWrite(motor1B, LOW);
+
+  // Set Group 2 motors to turn left
+  digitalWrite(motor2A, LOW);
+  digitalWrite(motor2B, HIGH);
+}
+
+// stop motors functions 
+void stopMotors() {
+  Serial.println("Stop");
+  digitalWrite(motor1A, LOW);
+  digitalWrite(motor1B, LOW);
+  digitalWrite(motor2A, LOW);
+  digitalWrite(motor2B, LOW);
+}
+
+void controlServo(char direction) {
+  if (direction == 'N') {
+    myservo.write(90); // Move servo to 90 degrees
+  } else if (direction == 'Y') {
+    myservo.write(60); // Move servo to 60 degrees
+  }
+}
+
+void loop() {
+// for Carrier Movement
+   analogWrite(motor1A, speed);
+  analogWrite(motor1B, speed);
+  digitalWrite(motor1A, HIGH);
+  digitalWrite(motor1B, LOW);
+
+  analogWrite(motor2A, speed);
+  analogWrite(motor2B, speed);
+  digitalWrite(motor2A, HIGH);
+  digitalWrite(motor2B, LOW);
+
+  if (Serial.available() > 0) {
+    command = Serial.read(); // Read incoming command
+
+    switch (command) {
+      case 'F':
+        // Start motors forward
+        moveForward();
+        break;
+      case 'B':
+        // Start motors backward
+        moveBackward();
+        break;
+      case 'R':
+        // Move motors to the right
+        moveRight();
+        break;
+      case 'L':
+        // Move motors to the left
+        moveLeft();
+        break;
+      case 'S':
+        // Stop motors
+        stopMotors();
+        break;
+      case 'N':
+      case 'Y':
+        controlServo(command);
+        break;
+    }
+  }
+}
